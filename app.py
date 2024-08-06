@@ -1,7 +1,8 @@
 import streamlit as st
+
+import pandas as pd
 pip install pdfplumber
 import pdfplumber
-import pandas as pd
 import re
 from fpdf import FPDF
 from dotenv import load_dotenv
