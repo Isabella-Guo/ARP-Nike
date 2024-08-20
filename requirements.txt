@@ -1,0 +1,7 @@
+streamlit
+pandas
+pdfplumber
+re
+fpdf
+openai
+matplotlib
