@@ -3,5 +3,5 @@ pandas
 pdfplumber
 re
 fpdf
-openai
 matplotlib
+openai==0.28
