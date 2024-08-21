@@ -6,6 +6,67 @@ from fpdf import FPDF
 import openai
 import matplotlib.pyplot as plt
 
+# Function to extract text from PDF
+def extract_text_from_pdf(pdf_file):
+    text = ""
+    with pdfplumber.open(pdf_file) as pdf:
+        for page in pdf.pages:
+            text += page.extract_text()
+    return text
+
+# Load lexicon CSV file
+lexicon_path = 'Loughran-McDonald_MasterDictionary_1993-2023.csv'
+lexicon_df = pd.read_csv(lexicon_path)
+lexicon_words = set(lexicon_df['Word'].str.lower())
+
+
+# Function to clean text with priority given to lexicon words
+def clean_text_with_priority(text, lexicon_words):
+    # Convert to lowercase
+    text = text.lower()
+
+    # Remove unnecessary punctuation but keep financial symbols
+    text = re.sub(r'[^\w\s$%]', '', text)
+
+    # Tokenize text
+    words = text.split()
+
+    # Prioritize and preserve lexicon words
+    cleaned_words = []
+    for word in words:
+        if word in lexicon_words:
+            cleaned_words.append(word)
+        else:
+            # Optionally, you can apply further cleaning to non-lexicon words
+            cleaned_words.append(word)
+
+    # Join the words back into a cleaned text
+    cleaned_text = ' '.join(cleaned_words)
+
+    return cleaned_text
+
+# Function to get sentiment analysis using OpenAI
+def get_sentiment_analysis(text, temperature=0.1):
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "You are an expert Financial Analyst conducting trading sentiment analysis."},
+            {"role": "user", "content": f"Analyze the text and financial data for immediate trading sentiment. Evaluate and outweigh each point whose significance for short-term and immediate impacts is high. Determine the accurate immediate trading sentiment (positive, negative, neutral) based on weighted assessment. Justify the conclusion in 2 sentences, show conclusion first.\n\n\n\n\n\n{text}"}
+        ],
+        temperature=temperature
+    )
+    return response['choices'][0]['message']['content'].strip()
+
+# Function to visualize sentiment analysis results
+def visualize_sentiments(sentiments):
+    sentiment_counts = pd.Series(sentiments).value_counts()
+    fig, ax = plt.subplots()
+    sentiment_counts.plot(kind='bar', ax=ax)
+    ax.set_title('Sentiment Analysis Results')
+    ax.set_xlabel('Sentiment')
+    ax.set_ylabel('Count')
+    st.pyplot(fig)
+
 # Streamlit app with sidebar for API key input
 def main():
     st.title("PDF Sentiment Analyzer ChatBot 📖")
@@ -88,60 +149,6 @@ def main():
         st.subheader("Overall Sentiment Analysis")
         visualize_sentiments(all_sentiments)
 
-# Function to extract text from PDF
-def extract_text_from_pdf(pdf_file):
-    text = ""
-    with pdfplumber.open(pdf_file) as pdf:
-        for page in pdf.pages:
-            text += page.extract_text()
-    return text
-
-# Function to clean text with priority given to lexicon words
-def clean_text_with_priority(text, lexicon_words):
-    # Convert to lowercase
-    text = text.lower()
-
-    # Remove unnecessary punctuation but keep financial symbols
-    text = re.sub(r'[^\w\s$%]', '', text)
-
-    # Tokenize text
-    words = text.split()
-
-    # Prioritize and preserve lexicon words
-    cleaned_words = []
-    for word in words:
-        if word in lexicon_words:
-            cleaned_words.append(word)
-        else:
-            # Optionally, you can apply further cleaning to non-lexicon words
-            cleaned_words.append(word)
-
-    # Join the words back into a cleaned text
-    cleaned_text = ' '.join(cleaned_words)
-
-    return cleaned_text
-
-# Function to get sentiment analysis using OpenAI
-def get_sentiment_analysis(text, temperature=0.1):
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": "You are an expert Financial Analyst conducting trading sentiment analysis."},
-            {"role": "user", "content": f"Analyze the text and financial data for immediate trading sentiment. Evaluate and outweigh each point whose significance for short-term and immediate impacts is high. Determine the accurate immediate trading sentiment (positive, negative, neutral) based on weighted assessment. Justify the conclusion in 2 sentences, show conclusion first.\n\n\n\n\n\n{text}"}
-        ],
-        temperature=temperature
-    )
-    return response['choices'][0]['message']['content'].strip()
-
-# Function to visualize sentiment analysis results
-def visualize_sentiments(sentiments):
-    sentiment_counts = pd.Series(sentiments).value_counts()
-    fig, ax = plt.subplots()
-    sentiment_counts.plot(kind='bar', ax=ax)
-    ax.set_title('Sentiment Analysis Results')
-    ax.set_xlabel('Sentiment')
-    ax.set_ylabel('Count')
-    st.pyplot(fig)
 
 if __name__ == "__main__":
     main()
