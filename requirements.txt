@@ -1,7 +1,6 @@
 streamlit
 pandas
 pdfplumber
-re
 fpdf
 matplotlib
 openai==0.28
