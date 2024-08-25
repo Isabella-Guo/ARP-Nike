@@ -5,6 +5,43 @@ import re
 from fpdf import FPDF
 import openai
 import matplotlib.pyplot as plt
+import nltk
+from nltk.util import ngrams
+from collections import Counter
+
+
+# Define weights for specific phrases
+phrase_weights = {
+    "net income": 1.5,
+    "gross margin": 1.2,
+    "operating expenses": 1.0,
+    "free cash flow": 1.3,
+    "earnings per share": 1.4,
+    "capital expenditure": 1.1,
+    "revenue growth": 1.2,
+    "debt equity ratio": 1.0,
+    "return on investment": 1.5,
+    "profit margin": 1.3,
+    "cost of goods sold": 1.1,
+    "working capital": 1.2,
+    "current ratio": 1.1,
+    "quick ratio": 1.1,
+    "interest coverage ratio": 1.2,
+    "dividend yield": 1.3,
+    "price to earnings ratio": 1.4,
+    "asset turnover": 1.2,
+    "inventory turnover": 1.1,
+    "debt service coverage": 1.3,
+    "return on equity": 1.5,
+    "capital structure": 1.1,
+    "liquidity ratio": 1.0,
+    "cash flow from operations": 1.4,
+    "net profit margin": 1.3,
+    "total shareholder return": 1.2,
+    "earnings before interest and taxes": 1.3
+}
+
+
 
 # Function to extract text from PDF
 def extract_text_from_pdf(pdf_file):
@@ -20,30 +57,44 @@ lexicon_df = pd.read_csv(lexicon_path)
 lexicon_words = set(lexicon_df['Word'].str.lower())
 
 
-# Function to clean text with priority given to lexicon words
-def clean_text_with_priority(text, lexicon_words):
+# Function to clean text with selective n-grams and filtering
+def clean_text_with_priority(text, lexicon_words, specific_phrases, phrase_weights, ngram_range=(1, 2)):
     # Convert to lowercase
     text = text.lower()
 
     # Remove unnecessary punctuation but keep financial symbols
     text = re.sub(r'[^\w\s$%]', '', text)
 
-    # Tokenize text
-    words = text.split()
+    # Tokenize text into words
+    words = nltk.word_tokenize(text)
 
-    # Prioritize and preserve lexicon words
-    cleaned_words = []
-    for word in words:
-        if word in lexicon_words:
-            cleaned_words.append(word)
-        else:
-            # Optionally, you can apply further cleaning to non-lexicon words
-            cleaned_words.append(word)
+    # Generate unigrams and bigrams only
+    all_ngrams = []
+    for n in range(ngram_range[0], ngram_range[1] + 1):
+        ngrams_list = list(ngrams(words, n))
+        all_ngrams.extend(ngrams_list)
+    
+    # Convert n-grams to strings
+    ngram_strings = [' '.join(ngram) for ngram in all_ngrams]
 
-    # Join the words back into a cleaned text
-    cleaned_text = ' '.join(cleaned_words)
+    # Filter and prioritize relevant n-grams, apply weights
+    cleaned_ngrams = []
+    weighted_phrases = []
+    for ngram in ngram_strings:
+        if ngram in lexicon_words or ngram in specific_phrases:
+            if ngram in phrase_weights:
+                # Apply the weight to the phrase by repeating it
+                weighted_ngram = ' '.join([ngram] * int(phrase_weights[ngram] * 10))
+                weighted_phrases.append(weighted_ngram)
+            cleaned_ngrams.append(ngram)
+        elif ngram in words:  # Preserve unigrams
+            cleaned_ngrams.append(ngram)
+
+    # Join the cleaned n-grams back into a cleaned text
+    cleaned_text = ' '.join(cleaned_ngrams + weighted_phrases)
 
     return cleaned_text
+
 
 # Function to get sentiment analysis using OpenAI
 def get_sentiment_analysis(text, temperature=0.1):
@@ -59,7 +110,10 @@ def get_sentiment_analysis(text, temperature=0.1):
 
 # Function to visualize sentiment analysis results
 def visualize_sentiments(sentiments):
+    # Count the occurrence of each sentiment
     sentiment_counts = pd.Series(sentiments).value_counts()
+    
+    # Plot the sentiment counts as a bar chart
     fig, ax = plt.subplots()
     sentiment_counts.plot(kind='bar', ax=ax)
     ax.set_title('Sentiment Analysis Results')
@@ -83,7 +137,21 @@ def main():
 
     # Set up OpenAI API key
     openai.api_key = openai_api_key
+    
+    # Select phrases to prioritize
+    selected_phrases = st.multiselect(
+        "Select specific financial phrases to prioritize:",
+        options=list(phrase_weights.keys()),
+        default=list(phrase_weights.keys())
+    )
 
+    # Update the specific_phrases set based on user selection
+    specific_phrases = set(selected_phrases)
+
+    # Adjust the temperature parameter for the sentiment analysis
+    temperature = st.slider("Select temperature for sentiment analysis (lower is more deterministic):", 0.0, 1.0, 0.1)
+
+    
     # Text input
     user_input = st.text_area("Enter your text here:")
 
