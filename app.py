@@ -164,7 +164,7 @@ def main():
         st.write("Processing entered text...")
         # Clean the entered text
         with st.spinner("Cleaning text..."):
-            cleaned_text = clean_text_with_priority(user_input, lexicon_words)
+            cleaned_text = clean_text_with_priority(user_input, lexicon_words, specific_phrases, phrase_weights)
 
         # Perform sentiment analysis on the cleaned text
         with st.spinner("Analyzing sentiment..."):
@@ -185,7 +185,7 @@ def main():
 
             # Clean the extracted text
             with st.spinner("Cleaning text..."):
-                cleaned_text = clean_text_with_priority(extracted_text, lexicon_words)
+                cleaned_text = clean_text_with_priority(user_input, lexicon_words, specific_phrases, phrase_weights)
 
             # Perform sentiment analysis on the cleaned text
             with st.spinner("Analyzing sentiment..."):
