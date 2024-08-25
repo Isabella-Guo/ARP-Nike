@@ -6,11 +6,12 @@ from fpdf import FPDF
 import openai
 import matplotlib.pyplot as plt
 import nltk
+# Ensure you have the NLTK data downloaded
+nltk.download('punkt')
 from nltk.util import ngrams
 from collections import Counter
 
-# Ensure you have the NLTK data downloaded
-nltk.download('punkt')
+
 
 # Define weights for specific phrases
 phrase_weights = {
