@@ -16,6 +16,8 @@ nltk_data_path = "nltk_data"
 # Append this path to NLTK's data search paths
 nltk.data.path.append('./nltk_data')
 
+nltk.download('punkt_tab')
+
 from nltk.tokenize import word_tokenize
 
 # Define weights for specific phrases
