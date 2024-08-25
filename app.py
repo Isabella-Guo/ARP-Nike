@@ -9,6 +9,8 @@ import nltk
 from nltk.util import ngrams
 from collections import Counter
 
+# Ensure you have the NLTK data downloaded
+nltk.download('punkt')
 
 # Define weights for specific phrases
 phrase_weights = {
