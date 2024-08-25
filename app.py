@@ -6,12 +6,17 @@ from fpdf import FPDF
 import openai
 import matplotlib.pyplot as plt
 import nltk
-# Ensure you have the NLTK data downloaded
-nltk.download('punkt')
+
 from nltk.util import ngrams
 from collections import Counter
 
+# Set the NLTK data path to your 'nltk_data' directory
+nltk_data_path = "nltk_data"
 
+# Append this path to NLTK's data search paths
+nltk.data.path.append('./nltk_data')
+
+from nltk.tokenize import word_tokenize
 
 # Define weights for specific phrases
 phrase_weights = {
