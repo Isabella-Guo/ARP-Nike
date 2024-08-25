@@ -1,4 +1,3 @@
-streamlit
 pandas
 pdfplumber
 fpdf
@@ -6,3 +5,4 @@ matplotlib
 openai==0.28
 nltk
 collections
+streamlit
