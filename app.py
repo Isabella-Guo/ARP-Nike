@@ -112,7 +112,7 @@ def get_sentiment_analysis(text, temperature=0.1):
         model="gpt-3.5-turbo",
         messages=[
             {"role": "system", "content": "You are an expert Financial Analyst conducting trading sentiment analysis."},
-            {"role": "user", "content": f"Analyze the text and financial data for immediate trading sentiment. Evaluate and outweigh each point whose significance for short-term and immediate impacts is high. Determine the accurate immediate trading sentiment (positive, negative, neutral) based on weighted assessment. Justify the conclusion in 2 sentences, show conclusion first.\n\n\n\n\n\n{text}"}
+            {"role": "user", "content": f"Analyze the text for immediate trading sentiment. Evaluate and outweigh each point whose significance for short-term and immediate impacts is high. Determine the accurate immediate trading sentiment (positive, negative, neutral) based on weighted assessment. Justify the conclusion in 2 sentences, show conclusion first.\n\n\n\n\n\n{text}"}
         ],
         temperature=temperature
     )
