@@ -242,7 +242,7 @@ def main():
 
     # Add a refresh button
     if st.button("Refresh"):
-        st.experimental_rerun()
+        st.rerun()
 
     # Dropdown menu to choose analysis mode
     analysis_mode = st.selectbox(
