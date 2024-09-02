@@ -131,16 +131,6 @@ def plot_sentiment_scores(df):
     plt.xticks(rotation=45, ha='right')
     st.pyplot(fig)
 
-# Streamlit app configuration
-st.set_page_config(
-    page_title="Financial Sentiment Analyzer",
-    page_icon="✔",
-    layout="wide",
-    initial_sidebar_state="expanded",
-    menu_items={
-        'About': "# This is a Financial Sentiment Analyzer app created with Streamlit"
-    }
-)
 
 # Streamlit app configuration
 st.set_page_config(
