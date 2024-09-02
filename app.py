@@ -73,7 +73,7 @@ def clean_text_with_priority(text, lexicon_words, specific_phrases, phrase_weigh
     text = text.lower()
 
     # Remove unnecessary punctuation but keep financial symbols
-    text = re.sub(r'[^\w\s$%]', '', text)
+    text = re.sub(r'[^\w\s]', '', text)
 
     # Tokenize text into words
     words = nltk.word_tokenize(text)
