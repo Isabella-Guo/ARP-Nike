@@ -225,6 +225,19 @@ class PDF(FPDF):
 def main():
     st.title("Financial Sentiment Analyzer ✔")
 
+      # Sidebar for API key input
+    with st.sidebar:
+        openai_api_key = st.text_input("OpenAI API Key", key="chatbot_api_key", type="password")
+        st.markdown("[Get an OpenAI API key](https://platform.openai.com/account/api-keys)")
+
+    # Check if the API key has been provided
+    if not openai_api_key:
+        st.error("Please enter your OpenAI API key in the sidebar.")
+        return
+
+    # Set up OpenAI API key
+    openai.api_key = openai_api_key
+
     st.markdown("## Analyze PDFs and Text for Financial Data")
 
     # Add a refresh button
